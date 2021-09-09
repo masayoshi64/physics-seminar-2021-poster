@@ -168,12 +168,12 @@ def simulate(model, l_max, iter_num):
     return data_L1, data_MI, data_CI
 
 
-def save_data(data, path):
-    if not os.path.exists("data/" + path):
-        os.makedirs("data/" + path)
-    np.savetxt("data/" + path + "/data_L1.csv", data[0], delimiter=",")
-    np.savetxt("data/" + path + "/data_MI.csv", data[1], delimiter=",")
-    np.savetxt("data/" + path + "/data_CI.csv", data[2], delimiter=",")
+def save_data(data, prefix):
+    if not os.path.exists("data"):
+        os.makedirs("data")
+    np.savetxt("data/" + prefix + "_L1.csv", data[0], delimiter=",")
+    np.savetxt("data/" + prefix + "_MI.csv", data[1], delimiter=",")
+    np.savetxt("data/" + prefix + "_CI.csv", data[2], delimiter=",")
 
 
 def main():
@@ -195,12 +195,12 @@ def main():
     else:
         cc = list(map(float, cc.split()))
     blackhole = YoungBlackHole(n, k, type, depth, cc)
-    output = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_n{n:02d}_k{k:02d}_type{type}_r{r:03d}"
+    output = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_n{n:02d}_k{k:02d}_type_{type}_r{r:03d}"
     if depth:
         output += f"_depth{depth:02d}"
     if cc:
         output += f"_cc{cc[0]:01d}_cc{cc[0]:01d}_{cc[1]:01d}_{cc[2]:01d}"
-    save_data(simulate(blackhole, n, r))
+    save_data(simulate(blackhole, n, r), output)
 
 
 if __name__ == "__main__":
