@@ -1,30 +1,16 @@
 from argparse import ArgumentParser
 from datetime import datetime
-from enum import Enum
-from pathlib import Path
-from typing import Optional
-import sys
 
-import qulacs
 from qulacs import QuantumState, QuantumCircuit
 from qulacs.state import partial_trace
 from qulacs.gate import DenseMatrix
 import numpy as np
 import numpy.linalg as npl
 from scipy.linalg import expm
-import matplotlib.pyplot as plt
 import random
 import os
 from itertools import combinations
 from tqdm import tqdm
-
-
-class EntanglementType(Enum):
-    from enum import auto
-
-    TRIPARTITE = auto()
-    ENTANGLEMENT_ENTROPY = auto()
-
 
 # [0, k): Charlie
 # [k, 2k): Alice
