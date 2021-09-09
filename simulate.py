@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import random
 import os
 from itertools import combinations
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 
 
 class EntanglementType(Enum):
