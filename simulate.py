@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from datetime import datetime
+import json
 
 from qulacs import QuantumState, QuantumCircuit
 from qulacs.state import partial_trace
@@ -159,11 +160,11 @@ def simulate(model, l_max, iter_num, prefix):
     df_L1 = pd.DataFrame(columns=["rad_num", "ave", "std"])
     df_MI = pd.DataFrame(columns=["rad_num", "ave", "std"])
     df_CI = pd.DataFrame(columns=["rad_num", "ave", "std"])
-    for l in range(l_max):
+    for l in range(l_max + 1):
         df_L1 = df_L1.append(
             pd.DataFrame(
                 {
-                    "rad_num": [l + 1],
+                    "rad_num": [l],
                     "ave": [np.average(data_L1[l])],
                     "std": [np.std(data_L1[l])],
                 }
@@ -200,32 +201,27 @@ def save_data(df, file_name):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("n", type=int, help="the number of qubits in blackhole")
-    parser.add_argument("k", type=int, help="the number of alice's qubits")
-    parser.add_argument("t", type=str)
-    parser.add_argument("r", type=int)
-    parser.add_argument("--depth", "-d", type=int, help="depth of circuit")
-    parser.add_argument(
-        "--coupling-constant", "-cc", type=str, help="space separated ints"
-    )
+    parser.add_argument("args", type=str)
     args = parser.parse_args()
+    path = args.args
 
-    n, k, type, depth, r = args.n, args.k, args.t, args.depth, args.r
-    cc = args.coupling_constant
-    if cc is None:
-        cc = []
-    else:
-        cc = list(map(float, cc.split()))
+    with open(path) as f:
+        df = json.load(f)
+        n, k, type, depth, r = (
+            df["n"],
+            df["k"],
+            df["type"],
+            df["depth"],
+            df["r"],
+        )
+    cc = df["coupling_constant"]
 
     blackhole = YoungBlackHole(n, k, type, depth, cc)
-    prefix = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_n{n:02d}_k{k:02d}_type_{type}_r{r:03d}"
-
-    if depth:
-        prefix += f"_depth{depth:02d}"
-    if cc:
-        prefix += f"_cc{cc[0]:01f}_{cc[1]:01f}_{cc[2]:01f}"
+    prefix = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
     simulate(blackhole, n, r, prefix)
+    with open("data/" + prefix + ".json", mode="wt", encoding="utf-8") as f:
+        json.dump(df, f, ensure_ascii=False, indent=2)
 
 
 if __name__ == "__main__":

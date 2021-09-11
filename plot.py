@@ -1,19 +1,19 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-import os
-
+import json
 
 
 def main():
-    with open("labels.txt") as f:
-        labels = f.readlines()
-    with open("data_files.txt") as f:
+    with open("plot.txt") as f:
         for i, name in enumerate(f.readlines()):
             if name[-1] == "\n":
                 name = name[:-1]
-            df = pd.read_csv("data/" + name)
+            with open("data/" + name + ".json") as f:
+                df = json.load(f)
+                title = df["title"]
+            df = pd.read_csv("data/" + name + "_L1.csv")
             plt.errorbar(
-                df["rad_num"], df["ave"], yerr=df["std"], capsize=5, label=labels[i]
+                df["rad_num"], df["ave"], yerr=df["std"], capsize=5, label=title
             )
     plt.legend()
     plt.show()
