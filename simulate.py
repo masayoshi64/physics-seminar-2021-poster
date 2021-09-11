@@ -32,9 +32,13 @@ class YoungBlackHole:
         depth = self.depth
         self.state = QuantumState(n + k)
         self.circuit = QuantumCircuit(n + k)
+
         for i in range(k):
             self.circuit.add_H_gate(i)
             self.circuit.add_CNOT_gate(i, i + k)
+        for i in range(n + k):
+            self.circuit.add_random_unitary_gate([i])
+
         if dynamics == "lrc":
             self.add_LRC(k, n + k, depth)
         elif dynamics == "haar":
