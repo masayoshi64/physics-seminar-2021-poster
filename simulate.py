@@ -142,7 +142,7 @@ class YoungBlackHole:
 
 
 # simulator for young black hole
-def simulate(model, l_max, iter_num, prefix):
+def simulate(model, l_min, l_max, iter_num, prefix):
     n, k = model.n, model.k
     print("type:", model.dynamics)
     print(f"n={model.n}, k={model.k}")
@@ -153,7 +153,7 @@ def simulate(model, l_max, iter_num, prefix):
     for i in tqdm(range(iter_num)):
         rad_qubits = random.sample(list(range(k, n + k)), n)
         model.update()
-        for l in range(l_max + 1):
+        for l in range(l_min, l_max + 1):
             data_L1[l][i] = model.L1(rad_qubits[:l])
             data_MI[l][i] = model.MI(rad_qubits[:l])
             data_CI[l][i] = model.CI(rad_qubits[:l])
@@ -161,7 +161,7 @@ def simulate(model, l_max, iter_num, prefix):
     df_L1 = pd.DataFrame(columns=["rad_num", "ave", "std"])
     df_MI = pd.DataFrame(columns=["rad_num", "ave", "std"])
     df_CI = pd.DataFrame(columns=["rad_num", "ave", "std"])
-    for l in range(l_max + 1):
+    for l in range(l_min, l_max + 1):
         df_L1 = df_L1.append(
             pd.DataFrame(
                 {
@@ -220,7 +220,7 @@ def main():
     blackhole = YoungBlackHole(n, k, type, depth, cc)
     prefix = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
-    simulate(blackhole, n, r, prefix)
+    simulate(blackhole, 0, n, r, prefix)
     with open("data/" + prefix + ".json", mode="wt", encoding="utf-8") as f:
         json.dump(df, f, ensure_ascii=False, indent=2)
 
