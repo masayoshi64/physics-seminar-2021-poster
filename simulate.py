@@ -7,6 +7,7 @@ from qulacs.gate import DenseMatrix
 import numpy as np
 import numpy.linalg as npl
 from scipy.linalg import expm
+import pandas as pd
 import random
 import os
 from itertools import combinations
@@ -139,7 +140,7 @@ class YoungBlackHole:
 
 
 # simulator for young black hole
-def simulate(model, l_max, iter_num):
+def simulate(model, l_max, iter_num, prefix):
     n, k = model.n, model.k
     print("type:", model.dynamics)
     print(f"n={model.n}, k={model.k}")
@@ -155,15 +156,46 @@ def simulate(model, l_max, iter_num):
             data_MI[l][i] = model.MI(rad_qubits[:l])
             data_CI[l][i] = model.CI(rad_qubits[:l])
         model.reset()
-    return data_L1, data_MI, data_CI
+    df_L1 = pd.DataFrame(columns=["rad_num", "ave", "std"])
+    df_MI = pd.DataFrame(columns=["rad_num", "ave", "std"])
+    df_CI = pd.DataFrame(columns=["rad_num", "ave", "std"])
+    for l in range(l_max):
+        df_L1 = df_L1.append(
+            pd.DataFrame(
+                {
+                    "rad_num": [l + 1],
+                    "ave": [np.average(data_L1[l])],
+                    "std": [np.std(data_L1[l])],
+                }
+            )
+        )
+        df_MI = df_MI.append(
+            pd.DataFrame(
+                {
+                    "rad_num": [l + 1],
+                    "ave": [np.average(data_MI[l])],
+                    "std": [np.std(data_MI[l])],
+                }
+            )
+        )
+        df_CI = df_CI.append(
+            pd.DataFrame(
+                {
+                    "rad_num": [l + 1],
+                    "ave": [np.average(data_CI[l])],
+                    "std": [np.std(data_CI[l])],
+                }
+            )
+        )
+    save_data(df_L1, prefix + "_L1.csv")
+    save_data(df_MI, prefix + "_MI.csv")
+    save_data(df_CI, prefix + "_CI.csv")
 
 
-def save_data(data, prefix):
+def save_data(df, file_name):
     if not os.path.exists("data"):
         os.makedirs("data")
-    np.savetxt("data/" + prefix + "_L1.csv", data[0], delimiter=",")
-    np.savetxt("data/" + prefix + "_MI.csv", data[1], delimiter=",")
-    np.savetxt("data/" + prefix + "_CI.csv", data[2], delimiter=",")
+    df.to_csv("data/" + file_name, index=False)
 
 
 def main():
@@ -184,13 +216,16 @@ def main():
         cc = []
     else:
         cc = list(map(float, cc.split()))
+
     blackhole = YoungBlackHole(n, k, type, depth, cc)
-    output = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_n{n:02d}_k{k:02d}_type_{type}_r{r:03d}"
+    prefix = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_n{n:02d}_k{k:02d}_type_{type}_r{r:03d}"
+
     if depth:
-        output += f"_depth{depth:02d}"
+        prefix += f"_depth{depth:02d}"
     if cc:
-        output += f"_cc{cc[0]:01d}_cc{cc[0]:01d}_{cc[1]:01d}_{cc[2]:01d}"
-    save_data(simulate(blackhole, n, r), output)
+        prefix += f"_cc{cc[0]:01f}_cc{cc[0]:01f}_{cc[1]:01f}_{cc[2]:01f}"
+
+    simulate(blackhole, n, r, prefix)
 
 
 if __name__ == "__main__":
