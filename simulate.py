@@ -223,7 +223,7 @@ def main():
     if depth:
         prefix += f"_depth{depth:02d}"
     if cc:
-        prefix += f"_cc{cc[0]:01f}_cc{cc[0]:01f}_{cc[1]:01f}_{cc[2]:01f}"
+        prefix += f"_cc{cc[0]:01f}_{cc[1]:01f}_{cc[2]:01f}"
 
     simulate(blackhole, n, r, prefix)
 
