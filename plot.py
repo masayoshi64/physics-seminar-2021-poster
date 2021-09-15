@@ -1,10 +1,16 @@
+from argparse import ArgumentParser
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import json
 
 
 def main():
-    with open("plot.txt") as f:
+    parser = ArgumentParser()
+    parser.add_argument("args", type=str)
+    args = parser.parse_args()
+    path = args.args
+    with open(path) as f:
         for i, name in enumerate(f.readlines()):
             if name[-1] == "\n":
                 name = name[:-1]
