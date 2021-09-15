@@ -1,0 +1,9 @@
+{
+  "title": "all to all(2)",
+  "n": 10,
+  "k": 2,
+  "r": 10,
+  "type": "twobody",
+  "depth": 1000,
+  "coupling_constant": []
+}

@@ -1,0 +1,9 @@
+{
+  "title": "Haar",
+  "n": 10,
+  "k": 2,
+  "r": 10,
+  "type": "haar",
+  "depth": 1000,
+  "coupling_constant": []
+}
