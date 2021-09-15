@@ -48,8 +48,10 @@ class YoungBlackHole:
             self.circuit.add_random_unitary_gate(list(range(k, n + k)))
         elif dynamics == "heisenberg":
             self.add_Heisenberg(k, n + k, depth)
+        elif dynamics == "twobody":
+            self.add_all_to_all_Heisenberg(k, n + k, depth, 2)
         elif dynamics == "fourbody":
-            self.add_four_body_Heisenberg(k, n + k, depth)
+            self.add_all_to_all_Heisenberg(k, n + k, depth, 4)
         else:
             print("invalid dynamics type")
 
@@ -79,13 +81,13 @@ class YoungBlackHole:
         U = DenseMatrix(list(range(l, r)), expm(-1j * t * H))
         self.circuit.add_gate(U)
 
-    def add_four_body_Heisenberg(self, l, r, t):
+    def add_all_to_all_Heisenberg(self, l, r, t, num):
         size = r - l
         X = np.array([[0, 1], [1, 0]])
         Y = np.array([[0, -1j], [1j, 0]])
         Z = np.array([[1, 0], [0, -1]])
         H = np.zeros((1 << size, 1 << size), dtype="complex128")
-        for comb in combinations(range(l, r), 4):
+        for comb in combinations(range(l, r), num):
             Jx, Jy, Jz = self.get_coupling_constants()
             Mx, My, Mz = np.ones(1), np.ones(1), np.ones(1)
             for i in range(l, r):
