@@ -1,0 +1,9 @@
+{
+  "title": "all to all(4)",
+  "n": 9,
+  "k": 1,
+  "r": 10,
+  "type": "fourbody",
+  "depth": 1000,
+  "coupling_constant": []
+}
