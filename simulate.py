@@ -18,6 +18,8 @@ from tqdm import tqdm
 # [0, k): Charlie
 # [k, 2k): Alice
 # [2k, n+k): Black hole -> [k, n+k)
+
+
 class YoungBlackHole:
     # coupling constant は指定しないとN(0, 1)に従う乱数
     def __init__(self, n, k, dynamics, depth=-1, cc=[]):
@@ -58,39 +60,39 @@ class YoungBlackHole:
     def update(self):
         self.circuit.update_quantum_state(self.state)
 
-    def add_LRC(self, l, r, depth):
+    def add_LRC(self, left, right, depth):
         assert depth >= 0
         for d in range(depth):
-            for i in range(l + d % 2, r - 1, 2):
+            for i in range(left + d % 2, right - 1, 2):
                 self.circuit.add_random_unitary_gate([i, i + 1])
 
-    def add_Heisenberg(self, l, r, t):
-        size = r - l
+    def add_Heisenberg(self, left, right, t):
+        size = right - left
         X = np.array([[0, 1], [1, 0]])
         Y = np.array([[0, -1j], [1j, 0]])
         Z = np.array([[1, 0], [0, -1]])
         H = np.zeros((1 << size, 1 << size), dtype="complex128")
-        for i in range(l, r - 1):
+        for i in range(left, right - 1):
             Jx, Jy, Jz = self.get_coupling_constants()
             M = Jx * np.kron(X, X) + Jy * np.kron(Y, Y) + Jz * np.kron(Z, Z)
-            if i > l:
-                M = np.kron(np.identity(1 << (i - l)), M)
-            if i + 2 < r:
-                M = np.kron(M, np.identity(1 << (r - i - 2)))
+            if i > left:
+                M = np.kron(np.identity(1 << (i - left)), M)
+            if i + 2 < right:
+                M = np.kron(M, np.identity(1 << (right - i - 2)))
             H += M
-        U = DenseMatrix(list(range(l, r)), expm(-1j * t * H))
+        U = DenseMatrix(list(range(left, right)), expm(-1j * t * H))
         self.circuit.add_gate(U)
 
-    def add_all_to_all_Heisenberg(self, l, r, t, num):
-        size = r - l
+    def add_all_to_all_Heisenberg(self, left, right, t, num):
+        size = right - left
         X = np.array([[0, 1], [1, 0]])
         Y = np.array([[0, -1j], [1j, 0]])
         Z = np.array([[1, 0], [0, -1]])
         H = np.zeros((1 << size, 1 << size), dtype="complex128")
-        for comb in combinations(range(l, r), num):
+        for comb in combinations(range(left, right), num):
             Jx, Jy, Jz = self.get_coupling_constants()
             Mx, My, Mz = np.ones(1), np.ones(1), np.ones(1)
-            for i in range(l, r):
+            for i in range(left, right):
                 if i in comb:
                     Mx = np.kron(Mx, X)
                     My = np.kron(My, Y)
@@ -100,7 +102,7 @@ class YoungBlackHole:
                     My = np.kron(My, np.identity(2))
                     Mz = np.kron(Mz, np.identity(2))
             H += Mx * Jx + My * Jy + Mz * Jz
-        U = DenseMatrix(list(range(l, r)), expm(-1j * t * H))
+        U = DenseMatrix(list(range(left, right)), expm(-1j * t * H))
         self.circuit.add_gate(U)
 
     def get_coupling_constants(self):
@@ -111,15 +113,18 @@ class YoungBlackHole:
     # l1 norm
     def L1(self, rad_qubits):
         n, k = self.n, self.k
-        l = len(rad_qubits)
-        mat_size = pow(2, n + k - l)
+        rad_num = len(rad_qubits)
+        mat_size = pow(2, n + k - rad_num)
         trace = partial_trace(self.state, rad_qubits)
-        return npl.norm(trace.get_matrix() - np.identity(mat_size) / mat_size, "nuc")
+        return npl.norm(
+            trace.get_matrix() -
+            np.identity(mat_size) /
+            mat_size,
+            "nuc")
 
     # mutual information
     def MI(self, rad_qubits):
         n, k = self.n, self.k
-        l = len(rad_qubits)
         b_qubits = list(filter(lambda x: x not in rad_qubits, range(k, n + k)))
         AB = partial_trace(self.state, b_qubits)
         A = partial_trace(self.state, list(range(k, n + k)))
@@ -155,39 +160,39 @@ def simulate(model, l_min, l_max, iter_num, prefix):
     for i in tqdm(range(iter_num)):
         rad_qubits = random.sample(list(range(k, n + k)), n)
         model.update()
-        for l in range(l_min, l_max + 1):
-            data_L1[l][i] = model.L1(rad_qubits[:l])
-            data_MI[l][i] = model.MI(rad_qubits[:l])
-            data_CI[l][i] = model.CI(rad_qubits[:l])
+        for rad_num in range(l_min, l_max + 1):
+            data_L1[rad_num][i] = model.L1(rad_qubits[:rad_num])
+            data_MI[rad_num][i] = model.MI(rad_qubits[:rad_num])
+            data_CI[rad_num][i] = model.CI(rad_qubits[:rad_num])
         model.reset()
     df_L1 = pd.DataFrame(columns=["rad_num", "ave", "std"])
     df_MI = pd.DataFrame(columns=["rad_num", "ave", "std"])
     df_CI = pd.DataFrame(columns=["rad_num", "ave", "std"])
-    for l in range(l_min, l_max + 1):
+    for rad_num in range(l_min, l_max + 1):
         df_L1 = df_L1.append(
             pd.DataFrame(
                 {
-                    "rad_num": [l],
-                    "ave": [np.average(data_L1[l])],
-                    "std": [np.std(data_L1[l])],
+                    "rad_num": [rad_num],
+                    "ave": [np.average(data_L1[rad_num])],
+                    "std": [np.std(data_L1[rad_num])],
                 }
             )
         )
         df_MI = df_MI.append(
             pd.DataFrame(
                 {
-                    "rad_num": [l + 1],
-                    "ave": [np.average(data_MI[l])],
-                    "std": [np.std(data_MI[l])],
+                    "rad_num": [rad_num + 1],
+                    "ave": [np.average(data_MI[rad_num])],
+                    "std": [np.std(data_MI[rad_num])],
                 }
             )
         )
         df_CI = df_CI.append(
             pd.DataFrame(
                 {
-                    "rad_num": [l + 1],
-                    "ave": [np.average(data_CI[l])],
-                    "std": [np.std(data_CI[l])],
+                    "rad_num": [rad_num + 1],
+                    "ave": [np.average(data_CI[rad_num])],
+                    "std": [np.std(data_CI[rad_num])],
                 }
             )
         )

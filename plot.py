@@ -20,10 +20,14 @@ def main():
 
             df = pd.read_csv("data/" + name + "_L1.csv")
             # df = pd.read_csv("data/" + name + "_MI.csv")
-            #df = pd.read_csv("data/" + name + "_CI.csv")
+            # df = pd.read_csv("data/" + name + "_CI.csv")
 
             plt.errorbar(
-                df["rad_num"], df["ave"], yerr=df["std"], capsize=5, label=title
+                df["rad_num"],
+                df["ave"],
+                yerr=df["std"],
+                capsize=5,
+                label=title
             )
 
     plt.legend()
