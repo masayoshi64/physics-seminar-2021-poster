@@ -188,7 +188,7 @@ def simulate(model, l_min, l_max, iter_num, rad_type, prefix):
         df_MI = df_MI.append(
             pd.DataFrame(
                 {
-                    "rad_num": [rad_num + 1],
+                    "rad_num": [rad_num],
                     "ave": [np.average(data_MI[rad_num])],
                     "std": [np.std(data_MI[rad_num])],
                 }
@@ -197,7 +197,7 @@ def simulate(model, l_min, l_max, iter_num, rad_type, prefix):
         df_CI = df_CI.append(
             pd.DataFrame(
                 {
-                    "rad_num": [rad_num + 1],
+                    "rad_num": [rad_num],
                     "ave": [np.average(data_CI[rad_num])],
                     "std": [np.std(data_CI[rad_num])],
                 }
