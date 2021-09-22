@@ -156,7 +156,7 @@ def simulate(model, l_min, l_max, iter_num, rad_type, prefix):
     print(f"depth={model.depth}, coupling constant={model.cc}")
     data_MI = np.zeros((l_max + 1, iter_num))
     data_L1 = np.zeros((l_max + 1, iter_num))
-    data_CI = np.zeros((l_max + 1, iter_num))
+    #data_CI = np.zeros((l_max + 1, iter_num))
     for i in tqdm(range(iter_num)):
         if rad_type == "random":
             rad_qubits = random.sample(list(range(k, n + k)), n)
@@ -170,11 +170,11 @@ def simulate(model, l_min, l_max, iter_num, rad_type, prefix):
         for rad_num in range(l_min, l_max + 1):
             data_L1[rad_num][i] = model.L1(rad_qubits[:rad_num])
             data_MI[rad_num][i] = model.MI(rad_qubits[:rad_num])
-            data_CI[rad_num][i] = model.CI(rad_qubits[:rad_num])
+            #data_CI[rad_num][i] = model.CI(rad_qubits[:rad_num])
         model.reset()
     df_L1 = pd.DataFrame(columns=["rad_num", "ave", "std"])
     df_MI = pd.DataFrame(columns=["rad_num", "ave", "std"])
-    df_CI = pd.DataFrame(columns=["rad_num", "ave", "std"])
+    #df_CI = pd.DataFrame(columns=["rad_num", "ave", "std"])
     for rad_num in range(l_min, l_max + 1):
         df_L1 = df_L1.append(
             pd.DataFrame(
@@ -194,18 +194,18 @@ def simulate(model, l_min, l_max, iter_num, rad_type, prefix):
                 }
             )
         )
-        df_CI = df_CI.append(
-            pd.DataFrame(
-                {
-                    "rad_num": [rad_num],
-                    "ave": [np.average(data_CI[rad_num])],
-                    "std": [np.std(data_CI[rad_num])],
-                }
-            )
-        )
+        # df_CI = df_CI.append(
+        #     pd.DataFrame(
+        #         {
+        #             "rad_num": [rad_num],
+        #             "ave": [np.average(data_CI[rad_num])],
+        #             "std": [np.std(data_CI[rad_num])],
+        #         }
+        #     )
+        # )
     save_data(df_L1, prefix + "_L1.csv")
     save_data(df_MI, prefix + "_MI.csv")
-    save_data(df_CI, prefix + "_CI.csv")
+    # save_data(df_CI, prefix + "_CI.csv")
 
 
 def save_data(df, file_name):
