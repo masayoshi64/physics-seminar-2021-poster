@@ -161,9 +161,9 @@ def simulate(model, l_min, l_max, iter_num, rad_type, prefix):
         if rad_type == "random":
             rad_qubits = random.sample(list(range(k, n + k)), n)
         elif rad_type == "increasing":
-            rad_qubits = list(range(n, n + k))
+            rad_qubits = list(range(k, n + k))
         elif rad_type == "decreasing":
-            rad_qubits = list(range(n, n + k))[::-1]
+            rad_qubits = list(range(k, n + k))[::-1]
         else:
             assert(True)
         model.update()
