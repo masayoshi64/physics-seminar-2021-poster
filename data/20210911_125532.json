@@ -1,9 +1,0 @@
-{
-  "title": "Heisenberg random",
-  "n": 9,
-  "k": 1,
-  "r": 10,
-  "type": "heisenberg",
-  "depth": 1000,
-  "coupling_constant": []
-}
