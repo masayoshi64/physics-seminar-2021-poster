@@ -4,6 +4,7 @@
     "k": 1,
     "r": 10,
     "type": "fourbody",
+    "rad_type": "random",
     "depth": 1000,
     "coupling_constant": []
 }
