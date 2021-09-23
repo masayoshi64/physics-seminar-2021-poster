@@ -222,22 +222,23 @@ def main():
 
     with open(path) as f:
         df = json.load(f)
-        n, k, type, depth, r = (
-            df["n"],
-            df["k"],
-            df["type"],
-            df["depth"],
-            df["r"],
-        )
-    rad_type = df["rad_type"]
-    cc = df["coupling_constant"]
+        for ex in df["experiments"]:
+            n, k, type, depth, r = (
+                ex["n"],
+                ex["k"],
+                ex["type"],
+                ex["depth"],
+                ex["r"],
+            )
+            rad_type = ex["rad_type"]
+            cc = ex["coupling_constant"]
 
-    blackhole = YoungBlackHole(n, k, type, depth, cc)
-    prefix = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            blackhole = YoungBlackHole(n, k, type, depth, cc)
+            prefix = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
-    simulate(blackhole, 0, n, r, rad_type, prefix)
-    with open("data/" + prefix + ".json", mode="wt", encoding="utf-8") as f:
-        json.dump(df, f, ensure_ascii=False, indent=2)
+            simulate(blackhole, 0, n, r, rad_type, prefix)
+            with open("data/" + prefix + ".json", mode="wt", encoding="utf-8") as f:
+                json.dump(ex, f, ensure_ascii=False, indent=2)
 
 
 if __name__ == "__main__":
